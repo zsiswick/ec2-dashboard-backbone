@@ -3,8 +3,6 @@ ec2-dashboard-backbone
 
 A simple UI to display and interact with EC2 Instances
 
-<h1>EC2-dashboard-Backbone<h1>
-<p>A simple UI to display and interact with EC2 Instances</p>
 <h3>How to Launch App</h3>
 <ul>
 <li>Requires Node</li>
