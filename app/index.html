@@ -1,0 +1,185 @@
+<!doctype html>
+<html class="no-js">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <title>Ec2DashboardBackbone</title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <!-- Place favicon.ico and apple-touch-icon.png in the root directory -->
+        <!-- build:css(.tmp) styles/main.css -->
+        <link rel="stylesheet" href="styles/main.css">
+        <!-- endbuild -->
+        <!-- build:js scripts/vendor/modernizr.js -->
+        <script src="bower_components/modernizr/modernizr.js"></script>
+        <!-- endbuild -->
+    </head>
+    <body>
+        <!--[if lt IE 10]>
+            <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
+        <![endif]-->
+
+        <nav class="navbar navbar-inverse" role="navigation">
+          <div class="container-fluid">
+            <div class="navbar-header">
+              <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+              </button>
+              <a class="navbar-brand" href="#">CloudStorm</a>
+            </div>
+            <div id="navbar" class="navbar-collapse collapse">
+              <ul class="nav navbar-nav navbar-right">
+                <li class="active"><a href="#">Dashboard</a></li>
+                <li><a href="#">Settings</a></li>
+                <li><a href="#">Help</a></li>
+              </ul>
+            </div>
+          </div>
+        </nav>
+
+        <div class="container-fluid" style="margin-top:4rem">
+          <section id="server-dashboard">
+            <script type="text/template" id="tally-template">
+              <div class="row">
+                <div class="col-sm-4">
+                  <div class="thumbnail">
+                    <div class="caption">
+                      <h4><span class="indicator running"></span> Running VMs</h4>
+                    </div>
+                    <div class="dash bg-success text-center">
+                      <h2><%= running() %></h2>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-sm-4">
+                  <div class="thumbnail">
+                    <div class="caption">
+                      <h4><span class="indicator stopped"></span> Stopped VMs</h4>
+                    </div>
+                    <div class="dash bg-danger text-center">
+                      <h2><%= stopped() %></h2>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-sm-4">
+                  <div class="thumbnail">
+                    <div class="caption">
+                      <h4><span class="indicator default"></span> Total VMs</h4>
+                    </div>
+                    <div class="dash bg-info text-center">
+                      <h2><%= total() %></h2>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </script>
+          </section>
+          <div class="row">
+            <div class="col-xs-12">
+              <div class="panel panel-default">
+                <div class="panel-heading">
+                  <h3 class="panel-title">EC2 Instances</h3>
+                </div>
+                <div id="panelBody" class="panel-body">
+                  <script type="text/template" id="panelTemplate">
+                    <div class="row">
+                      <div class="col-xs-6 col-md-4">
+                        <label class="control-label" for="inputSuccess2">Group Actions</label><br/>
+                        <div class="input-group">
+                          <span class="input-group-addon">
+                            <span class="badge"><%= countSelected() %></span>
+                          </span>
+                          <div class="input-group-btn">
+                            <button id="groupStart" type="button" class="btn btn-default"><span class="glyphicon glyphicon-play" aria-hidden="true"></span> <span class="hidden-xs">Start</span></button>
+                            <button id="groupStop" type="button" class="btn btn-default"><span class="glyphicon glyphicon-stop" aria-hidden="true"></span> <span class="hidden-xs">Stop</span></button>
+                            <button type="button" class="btn btn-default"><span class="glyphicon glyphicon-repeat" aria-hidden="true"></span> <span class="hidden-xs">Restart</span></button>
+                          </div>
+                        </div>
+                        <div class="select-all">
+                          <input type="checkbox" id="selectAll" <% if (selected) { %>checked="checked"<% } %>> <label for="selectAll" style="font-weight:normal">Select All Servers</label>
+                        </div>
+                      </div>
+                      <div class="col-xs-6 col-md-3">
+                        <label class="control-label" for="inputSuccess2">Sort by</label>
+                        <select class="form-control">
+                          <option value="name">Server Name</option>
+                          <option value="type">Server Type</option>
+                          <option value="state">Server Status</option>
+                        </select>
+                      </div>
+                    </div>
+                  </script>
+                </div>
+                <table class="table table-responsive server-rows">
+                  <thead>
+                    <tr>
+                      <th></th>
+                      <th>Server</th>
+                      <th>Type</th>
+                      <th>Status</th>
+                    </tr>
+                  </thead>
+                  <tbody id="server-list">
+                    <script type="text/template" id="server-rows">
+                      <td class="server-selector">
+                        <input type="checkbox" <% if (selected) { %>checked="checked"<% } %> />
+                      </td>
+                      <td class="server-name">
+                        <b><%= name %></b> <small>(<%= id %>)</small><br/>
+                        <span class="text-muted small"><b>Public IP:</b> <%= publicIP %> :: <b>Private IP:</b> <%= privateIP %></span><br/>
+                      </td>
+                      <td class="server-type">
+                        <b><%= type %></b><br/>
+                        <span class="text-muted small"><%= az %></span>
+                      </td>
+                      <td class="server-actions">
+                        <div class="input-group server-actions">
+                          <span class="input-group-addon indication">
+                            <span class="indicator <%= state %>"></span><span class="hidden-xs text"><%= state %></span>
+                          </span>
+                          <div class="input-group-btn">
+                            <button type="button" class="btn btn-default start <% if (state == 'running') { %>hide<% } %>"><span class="glyphicon glyphicon-play" aria-hidden="true"></span> <span class="hidden-xs">Run</span></button>
+                            <button type="button" class="btn btn-default stop <% if (state == 'stopped') { %>hide<% } %>"><span class="glyphicon glyphicon-stop" aria-hidden="true"></span> <span class="hidden-xs">Stop</span></button>
+                            <button type="button" class="btn btn-default"><span class="glyphicon glyphicon-repeat" aria-hidden="true"></span> <span class="hidden-xs">Restart</span></button>
+                          </div>
+                        </div>
+                      </td>
+                    </script>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- build:js scripts/vendor.js -->
+        <script src="bower_components/jquery/dist/jquery.js"></script>
+        <script src="bower_components/lodash/dist/lodash.compat.js"></script>
+        <script src="bower_components/backbone/backbone.js"></script>
+        <script src="bower_components/backbone.epoxy/backbone.epoxy.js"></script>
+        <!-- endbuild -->
+
+        <!-- build:js scripts/plugins.js -->
+        <script src="bower_components/bootstrap-sass-official/assets/javascripts/bootstrap/affix.js"></script>
+        <script src="bower_components/bootstrap-sass-official/assets/javascripts/bootstrap/alert.js"></script>
+        <script src="bower_components/bootstrap-sass-official/assets/javascripts/bootstrap/button.js"></script>
+        <script src="bower_components/bootstrap-sass-official/assets/javascripts/bootstrap/carousel.js"></script>
+        <script src="bower_components/bootstrap-sass-official/assets/javascripts/bootstrap/collapse.js"></script>
+        <script src="bower_components/bootstrap-sass-official/assets/javascripts/bootstrap/dropdown.js"></script>
+        <script src="bower_components/bootstrap-sass-official/assets/javascripts/bootstrap/modal.js"></script>
+        <script src="bower_components/bootstrap-sass-official/assets/javascripts/bootstrap/tooltip.js"></script>
+        <script src="bower_components/bootstrap-sass-official/assets/javascripts/bootstrap/popover.js"></script>
+        <script src="bower_components/bootstrap-sass-official/assets/javascripts/bootstrap/scrollspy.js"></script>
+        <script src="bower_components/bootstrap-sass-official/assets/javascripts/bootstrap/tab.js"></script>
+        <script src="bower_components/bootstrap-sass-official/assets/javascripts/bootstrap/transition.js"></script>
+        <!-- endbuild -->
+
+        <!-- build:js({.tmp,app}) scripts/main.js -->
+        <script src="scripts/templates.js"></script>
+        <script src="scripts/main.js"></script>
+        <!-- endbuild -->
+</body>
+</html>

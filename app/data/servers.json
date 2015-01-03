@@ -1,0 +1,14 @@
+[
+  {"name": "Storm Shadow", "id": "ODB6JY", "type": "T1 Micro", "state": "running", "az": "us-east-1b", "publicIP": "54.210.167.204", "privateIP": "10.20.30.40"},
+
+  {"name": "Duke", "id": "7NM61H", "type": "T2 Small", "state": "stopped", "az": "us-east-1b", "publicIP": "204.96.41.77", "privateIP": "227.85.207.100"},
+
+  {"name": "Destro", "id": "9A0W9H", "type": "C3 High-CPU Large", "state": "stopped", "az": "us-west-3c", "publicIP": "155.141.18.227", "privateIP": "192.210.209.71"},
+
+  {"name": "Snake Eyes", "id": "Q7QU72", "type": "M1 General Medium", "state": "running", "az": "us-west-3c", "publicIP": "208.183.37.64", "privateIP": "24.59.117.71"},
+
+  {"name": "Cobra Commander", "id": "IAWG6G", "type": "T2 Medium", "state": "running", "az": "us-west-3c", "publicIP": "90.211.225.61", "privateIP": "182.163.140.132"},
+
+  {"name": "Zartan", "id": "W5A5XB", "type": "T1 Micro", "state": "stopped", "az": "us-west-3c", "publicIP": "5.181.209.232", "privateIP": "11.161.78.166"}
+
+]
