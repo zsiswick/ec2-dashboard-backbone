@@ -226,15 +226,17 @@ app.ServerPanelView = Backbone.View.extend ({
     var val = $(e.currentTarget).val();
     app.servers.sortServers(val);
   },
-  selectAll: function() {
+  selectAll: function(event) {
     if ($("#selectAll:checked").length) {
       _.each(app.servers.models, function(index) {
         index.set({selected: true});
+        $('#server-list tr').addClass('selected');
       });
       app.serverTally.set("selected", true);
     } else {
       _.each(app.servers.models, function(index) {
         index.set({selected: false});
+        $('#server-list tr').removeClass('selected');
       });
       app.serverTally.set("selected", false);
     }
