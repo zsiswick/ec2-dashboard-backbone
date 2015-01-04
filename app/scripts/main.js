@@ -16,12 +16,6 @@ var servers = [
 ];
 
 
-app.refreshTally = function() {
-
-  val = app.serverTally.get("counter") + 1;
-  app.serverTally.set("counter", val);
-}
-
 /*////////////
 * Routes
 *////////////
@@ -77,38 +71,29 @@ app.ServerTally = Backbone.Model.extend({
 
 app.serverTally = new app.ServerTally({
 
-  stopped: function() {
+  tallyAttribute: function(attr, val) {
     var total = 0;
     _.each(app.servers.models, function(index) {
-      if (index.attributes.state === "stopped") {
+      if (index.attributes[attr] === val) {
         total ++;
       }
     });
     return total;
   },
+  stopped: function() {
+    return this.tallyAttribute('state', 'stopped');
+  },
   running: function() {
-    var total = 0;
-    _.each(app.servers.models, function(index) {
-      if (index.attributes.state === "running") {
-        total ++;
-      }
-    });
-    return total;
+    return this.tallyAttribute('state', 'running');
   },
   total: function() {
     return app.servers.length;
   },
   countSelected: function() {
-    var total = 0;
-    _.each(app.servers.models, function(index) {
-      if (index.attributes.selected === true) {
-        total ++;
-      }
-    });
-    return total;
+    return this.tallyAttribute('selected', true);
   },
   selected: false,
-  counter: 0 // Hackish way to force views to refresh when number changes
+  counter: 0 // Method to force views to refresh when number changes
 });
 
 
@@ -125,8 +110,9 @@ app.ServerList = Backbone.Collection.extend ({
   },
   comparator: function(item) {
     return item.get(this.sortAttribute);
-  },
+  }
 });
+
 app.servers = new app.ServerList(servers);
 
 
@@ -179,7 +165,6 @@ app.ServerListView = Backbone.View.extend({
 
   initialize: function(){
     this.render();
-    //this.listenTo( this.collection, 'add', this.renderServer );
     this.listenTo(this.collection, "sort", this.render);
   },
   render: function() {
@@ -255,17 +240,13 @@ app.ServerPanelView = Backbone.View.extend ({
   },
   groupStart: function() {
     _.each(app.servers.models, function(index) {
-      if ( index.get("selected") === true ) {
-        index.set({state: "running"});
-      }
+      if ( index.get("selected") === true ) index.set({state: "running"});
     });
     app.refreshTally();
   },
   groupStop: function() {
     _.each(app.servers.models, function(index) {
-      if ( index.get("selected") === true ) {
-        index.set({state: "stopped"});
-      }
+      if ( index.get("selected") === true ) index.set({state: "stopped"});
     });
     app.refreshTally();
   },
@@ -280,6 +261,19 @@ app.ServerPanelView = Backbone.View.extend ({
 });
 
 app.serverPanelView = new app.ServerPanelView({model: app.serverTally});
+
+
+/*//////////////////
+* Utility Function
+*//////////////////
+
+app.refreshTally = function() {
+
+  // Method to refresh serverTally model
+
+  val = app.serverTally.get("counter") + 1;
+  app.serverTally.set("counter", val);
+}
 
 
 /*//////////////////
