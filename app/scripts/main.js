@@ -141,11 +141,13 @@ app.ServerView = Backbone.View.extend ({
     val = app.serverTally.get("counter") + 1;
     app.refreshTally();
   },
-  setSelected: function() {
+  setSelected: function(event) {
     if (this.model.get("selected") == false) {
       this.model.set({selected: true});
+      this.$el.addClass('selected');
     } else {
       this.model.set({selected: false});
+      this.$el.removeClass('selected');
     }
     app.refreshTally();
   },
